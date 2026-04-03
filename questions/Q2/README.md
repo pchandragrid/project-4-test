@@ -1,18 +1,51 @@
-# Q2 README
+# Q2 — Why use tree-sitter instead of language-specific AST parsers like Python's `ast` module?
 
-## Question
+## 1. Project Overview and Key Components
 
-Why use tree-sitter instead of language-specific AST parsers like Python's `ast` module?
+### Repository Analysis Summary
 
-## Answer
+This question examines why Understand-Anything uses a tree-sitter-based structural analysis layer instead of relying on language-specific parser APIs such as Python's built-in `ast` module. The answer is tied to the repository's language-agnostic design and its need for a shared parsing strategy inside a TypeScript core.
 
-Understand-Anything is designed to analyze many kinds of repositories, not just Python projects. A parser like Python's `ast` works well for one language, but this repo is built around a shared TypeScript core that needs a consistent structural-analysis layer across languages. Tree-sitter provides that common interface.
+Within the Understand-Anything codebase, this question primarily touches the following areas:
 
-In `understand-anything-plugin/packages/core/src/plugins/tree-sitter-plugin.ts`, the system maps file extensions to language grammars, loads grammars lazily, and extracts functions, classes, and imports through one plugin abstraction. That gives the core engine a unified way to enrich the graph across TypeScript, JavaScript, and future language additions without building a different orchestration path for each language parser.
+- `understand-anything-plugin/packages/core/src/plugins/tree-sitter-plugin.ts`
+- `understand-anything-plugin/packages/core/src/languages/configs/`
+- `docs/plans/2026-03-21-language-agnostic-design.md`
+- `CLAUDE.md`
 
-The repo also makes a portability-focused choice by using `web-tree-sitter`. `CLAUDE.md` explicitly notes that native `tree-sitter` bindings were problematic on darwin/arm64 with Node 24. Using a WASM-based runtime keeps the tool easier to run across supported agent platforms and local environments.
+## 2. Deep Reasoning Questions & Analysis
 
-Another major advantage is graceful degradation. The design docs make it clear that the LLM is still the primary analyzer and structural analysis is an enhancement. If a grammar is missing, the file can still be analyzed semantically. That is a cleaner fallback model than maintaining many separate language-specific AST backends with different runtime requirements.
+## Expanded Overview
+
+Understand-Anything is not a Python-only tool. It is trying to analyze mixed-language repositories and produce one common graph artifact. That means its structural-analysis subsystem has to be portable, configurable, and consistent across languages. Tree-sitter fits that need better than a collection of unrelated language-specific AST APIs.
+
+## Why This Matters
+
+- The project supports multiple languages and frameworks.
+- A shared TypeScript core needs one consistent plugin interface.
+- Platform portability matters across local setups and agent ecosystems.
+- Structural analysis must fail gracefully without breaking the full pipeline.
+
+## Detailed Answer
+
+### Short answer
+
+Tree-sitter gives Understand-Anything a unified structural-analysis layer across languages, whereas language-specific parsers like Python's `ast` solve only one slice of the overall problem.
+
+### Why tree-sitter fits this repo
+
+- The plugin maps file extensions to language grammars.
+- Grammars are loaded lazily and cached.
+- Extraction logic is driven through one analyzer abstraction.
+- Unsupported grammars can be skipped gracefully while the LLM still analyzes the file semantically.
+
+### Why not use separate native AST APIs?
+
+If the project used Python's `ast`, Go's parser, Java parsers, and others independently, the core would need different runtime dependencies, integration strategies, and failure handling logic for each language. That would make the system more fragmented and harder to distribute.
+
+### Portability reason visible in the repo
+
+`CLAUDE.md` explicitly notes that the project uses `web-tree-sitter` rather than native `tree-sitter` because native bindings caused problems on darwin/arm64 with Node 24. So this is not only about parsing expressiveness; it is also about making the tool portable in real environments.
 
 ## Flow Diagram
 
@@ -41,9 +74,41 @@ private languageKeyFromPath(filePath: string): string | null {
 }
 ```
 
-## Key Repo Evidence
+## Practical Design Implications
+
+- Structural extraction can be reused across many languages.
+- The core package stays centered around one plugin model.
+- Missing grammar support degrades gracefully instead of crashing analysis.
+- The system is easier to ship across supported agent environments.
+
+## Conclusion
+
+Overall, Q2 highlights a deliberate architectural choice in Understand-Anything: the project favors a single portable parsing strategy that can support many languages consistently instead of tying the core to one language ecosystem.
+
+## Architectural Reasoning
+
+Tree-sitter gives the repo a common structural-analysis interface while keeping semantic understanding delegated to the LLM layer. That combination matches the project's broader goal of language-agnostic codebase understanding: consistent structure extraction where possible, graceful fallback where necessary.
+
+## Trade-offs and Limitations
+
+- Grammar loading and WASM handling add complexity.
+- Language support depends on available tree-sitter grammars.
+- Deep semantic understanding still requires the LLM layer.
+- The benefit is a far more coherent multi-language architecture.
+
+## Example Scenario
+
+If a repository mixes TypeScript, JavaScript, YAML, Markdown, and Python, a tree-sitter-centered approach gives the analysis engine one structural pipeline and one registry model. A language-specific-parser approach would require the system to coordinate many different parser ecosystems separately.
+
+## Source Files Referenced
 
 - `understand-anything-plugin/packages/core/src/plugins/tree-sitter-plugin.ts`
 - `understand-anything-plugin/packages/core/src/languages/configs/`
 - `docs/plans/2026-03-21-language-agnostic-design.md`
 - `CLAUDE.md`
+
+## 3. Findings and Conclusion
+
+The analysis of Q2 shows that tree-sitter is a strategic architecture choice for portability and language-agnostic structure extraction. Understand-Anything is designed around one shared core, and tree-sitter gives that core a much cleaner multi-language parsing story than a patchwork of language-specific AST APIs would.
+
+In practice, this choice keeps the system extensible, more portable, and better aligned with the repo's goal of understanding arbitrary codebases rather than one language family.

@@ -1,18 +1,51 @@
-# Q1 README
+# Q1 — Why use five sequential agents instead of a single monolithic agent?
 
-## Question
+## 1. Project Overview and Key Components
 
-Why use five sequential agents instead of a single monolithic agent?
+### Repository Analysis Summary
 
-## Answer
+This question examines why Understand-Anything implements `/understand` as a staged five-agent pipeline instead of handing the entire repository-understanding task to one large monolithic agent. The answer depends on how the repo separates scanning, file extraction, graph assembly, architecture reasoning, onboarding generation, and validation.
 
-Understand-Anything uses five sequential agents because each stage of codebase understanding needs a different abstraction level and output format. The project scanner reasons about repository inventory and frameworks. The file analyzer reasons about source-level structure and semantics. The architecture analyzer reasons over the assembled graph. The tour builder reasons pedagogically. The graph reviewer reasons adversarially and validates correctness. Putting all of that inside one monolithic agent would mix incompatible responsibilities into one oversized prompt and one fragile output contract.
+Within the Understand-Anything codebase, this question primarily touches the following areas:
 
-The sequence also matches the repo's real dependencies. Layer detection only makes sense after nodes and edges exist. Tour generation becomes stronger after layers and entry points are known. Validation only becomes meaningful after the graph is assembled. This is why `understand-anything-plugin/skills/understand/SKILL.md` is written as an explicit phased pipeline instead of one giant agent run.
+- `understand-anything-plugin/skills/understand/SKILL.md`
+- `README.md`
+- `CLAUDE.md`
 
-Another key point is that the system is only sequential where order matters. The expensive file-analysis stage is parallelized in batches of 20-30 files, with up to five concurrent subagents. So the architecture keeps deterministic top-level flow while still scaling the heaviest stage.
+## 2. Deep Reasoning Questions & Analysis
 
-This design also enables incremental updates. When files change, the tool can re-run file analysis only for the changed files, merge the results, and then rebuild higher-level artifacts like layers and tours. A monolithic agent would make that reuse much harder.
+## Expanded Overview
+
+Understand-Anything is trying to solve a large-scale code understanding problem, not a one-shot summarization problem. That means the system needs to discover the repository, analyze many files, produce a graph, infer architecture, generate tours, and validate the final output. Those are different reasoning tasks with different data shapes and different failure modes. The repo therefore splits them into specialized stages rather than asking one agent to do everything in one pass.
+
+## Why This Matters
+
+- Large repositories create context pressure and prompt bloat.
+- Some stages require raw files, while others only need graph-level abstractions.
+- Validation should be independent from generation.
+- Incremental updates become much easier when the work is decomposed into reusable phases.
+
+## Detailed Answer
+
+### Short answer
+
+Understand-Anything uses five sequential agents because each phase needs different context, different output constraints, and different reasoning behavior. A monolithic agent would be harder to scale, harder to validate, and harder to reuse incrementally.
+
+### Why the staged pipeline fits this repo
+
+- **Project scanner** finds files, languages, frameworks, and import hints.
+- **File analyzer** works on batch-level structural and semantic extraction.
+- **Architecture analyzer** reasons over the assembled graph instead of raw source.
+- **Tour builder** reasons pedagogically over README, entry points, layers, and graph flow.
+- **Graph reviewer** checks the assembled graph as a QA layer instead of generating content.
+
+### Why not a monolithic agent?
+
+A single giant prompt would have to carry repository inventory, raw code, architecture reasoning, pedagogy, and validation instructions all at once. That would blur responsibilities and make failures harder to isolate. By contrast, the staged pipeline lets each phase consume exactly the abstraction level it needs.
+
+### Parallelism inside the sequential design
+
+The repo is not purely serial. The file-analysis stage is explicitly parallelized into batches of 20-30 files with up to five concurrent subagents. That means the top-level flow stays deterministic, while the most expensive stage still scales efficiently.
 
 ## Flow Diagram
 
@@ -30,7 +63,7 @@ flowchart TD
     F --> G[knowledge-graph.json]
 ```
 
-## Pipeline Snippet
+## Code Snippet
 
 ```text
 Phase 1 — SCAN
@@ -43,8 +76,40 @@ Phase 5 — TOUR
 Phase 6 — REVIEW
 ```
 
-## Key Repo Evidence
+## Practical Design Implications
+
+- The system can re-run only the changed-file analysis in incremental mode.
+- Failures are easier to localize because each phase has a clear contract.
+- Later stages do not need raw source code again if the graph is already built.
+- Validation can act as an independent quality gate.
+
+## Conclusion
+
+Overall, Q1 highlights a deliberate architectural choice in Understand-Anything: the system prefers staged, specialized reasoning over a monolithic all-in-one prompt because that approach is easier to scale, validate, and reuse.
+
+## Architectural Reasoning
+
+The pipeline is structured so that each phase consumes the smallest useful abstraction from the previous one. That reduces prompt complexity, improves fault isolation, and makes incremental updates feasible. In other words, sequencing is not overhead here; it is what keeps the system operationally reliable as repositories grow.
+
+## Trade-offs and Limitations
+
+- More orchestration complexity than a single-agent design.
+- More intermediate artifacts and normalization logic to manage.
+- More prompt templates to maintain.
+- The payoff is stronger scalability, better fault isolation, and cleaner reasoning boundaries.
+
+## Example Scenario
+
+Suppose a repository has 180 files and only 6 changed since the last analysis. In the current staged design, Understand-Anything can re-run file analysis for those changed files, rebuild the merged graph, then regenerate layers and tours from the updated graph. A monolithic agent would tend to re-read and re-reason over the whole repository again.
+
+## Source Files Referenced
 
 - `understand-anything-plugin/skills/understand/SKILL.md`
 - `README.md`
 - `CLAUDE.md`
+
+## 3. Findings and Conclusion
+
+The analysis of Q1 shows that the five-agent pipeline is an architectural scaling decision, not just a prompt-writing preference. Understand-Anything decomposes repository understanding into stages because those stages operate on different kinds of evidence and should fail independently.
+
+In practical terms, this makes the system more reliable, more incremental, and easier to validate than a monolithic agent approach. The design choice strengthens Understand-Anything as a reusable code-intelligence system rather than a one-shot code summarizer.

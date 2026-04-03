@@ -1,18 +1,62 @@
-# Q8 README
+# Q8 — Why support multiple platform integrations instead of focusing exclusively on Claude Code?
 
-## Question
+## 1. Project Overview and Key Components
 
-Why support multiple platform integrations instead of focusing exclusively on Claude Code?
+### Repository Analysis Summary
 
-## Answer
+This question examines why Understand-Anything was designed to support multiple agent platforms instead of remaining limited to Claude Code. The answer is closely tied to the repo's platform-neutral architecture, installation strategy, and reuse of shared skill files.
 
-The README and platform files show that Understand-Anything has already grown beyond a Claude Code-only tool. It now supports Claude Code, Codex, OpenCode, OpenClaw, Cursor, VS Code with GitHub Copilot, Gemini CLI, and more. That is possible because the architecture is platform-neutral at its core.
+Within the Understand-Anything codebase, this question primarily touches the following areas:
 
-The real value of the project is not a single platform integration. It is the shared analysis engine, the multi-agent skill pipeline, and the persisted knowledge-graph artifact. Once those are portable, adding another platform becomes relatively cheap. The install files in `.codex`, `.opencode`, `.openclaw`, and `.gemini` mostly connect the same skills to different discovery mechanisms, while Cursor and Copilot manifests point to the same skill and agent directories.
+- `README.md`
+- `docs/plans/2026-03-18-multi-platform-simple-design.md`
+- `.codex/INSTALL.md`
+- `.opencode/INSTALL.md`
+- `.openclaw/INSTALL.md`
+- `.gemini/INSTALL.md`
+- `.cursor-plugin/plugin.json`
+- `.copilot-plugin/plugin.json`
 
-The multi-platform design docs reinforce this philosophy with principles like "same files, all platforms," `model: inherit`, and AI-driven installation. That means the project is built to reuse the same prompts, skills, and structure across ecosystems instead of maintaining separate forks.
+## 2. Deep Reasoning Questions & Analysis
 
-From a product perspective, this is also rational. The user problem, understanding large unfamiliar codebases, exists across all modern AI coding environments. By staying platform-neutral, the project reduces ecosystem lock-in and increases reach without duplicating its core implementation.
+## Expanded Overview
+
+The repository's core value is not tied to one host ecosystem. Understand-Anything's main assets are its skill pipeline, shared analysis engine, graph schema, and dashboard. Once those are independent from any one platform runtime, it becomes natural and relatively inexpensive to distribute the system across multiple agent environments.
+
+## Why This Matters
+
+- The user problem exists across many AI coding platforms, not just one.
+- Reusing the same skills and graph artifact increases reach without duplicating logic.
+- Platform neutrality reduces ecosystem lock-in.
+- The repo's packaging strategy already assumes shared files across platforms.
+
+## Detailed Answer
+
+### Short answer
+
+Understand-Anything supports multiple platforms because its architecture is already portable, and the underlying problem it solves, codebase understanding, is universal across modern AI coding environments.
+
+### What makes the repo portable
+
+- the shared `core` analysis engine
+- a durable `knowledge-graph.json` artifact
+- skill definitions that can be reused
+- platform-specific installation wrappers that mostly point to the same content
+
+### Evidence from the design docs
+
+The multi-platform design doc explicitly emphasizes:
+
+- same files across platforms
+- no build step
+- `model: inherit`
+- AI-driven installation
+
+That shows platform neutrality is not an afterthought but a design objective.
+
+### Why not stay Claude Code-only?
+
+A Claude-only strategy would unnecessarily narrow adoption while the architecture itself is already general enough to serve Codex, OpenCode, Cursor, Copilot, Gemini CLI, and other environments. Since the repo is not tightly bound to Claude-specific APIs, supporting more platforms yields high leverage.
 
 ## Platform Diagram
 
@@ -33,7 +77,33 @@ for skill in understand understand-chat understand-dashboard understand-diff und
 done
 ```
 
-## Key Repo Evidence
+## Practical Design Implications
+
+- One architecture can serve many ecosystems.
+- The project gains a wider user base without a full rewrite per platform.
+- Skills and prompts stay easier to maintain because they are shared.
+- The graph artifact remains the consistent cross-platform contract.
+
+## Conclusion
+
+Overall, Q8 highlights a deliberate architectural choice in Understand-Anything: the project is built as a portable code-understanding system rather than as a plugin locked to one host ecosystem.
+
+## Architectural Reasoning
+
+Once the analysis engine, graph artifact, and skills are made platform-neutral, supporting additional hosts becomes mainly a packaging and discovery problem. The repo’s installation files and plugin manifests show that this portability is intentional. Multi-platform support is therefore not extra decoration; it follows naturally from the architecture.
+
+## Trade-offs and Limitations
+
+- Installation and discovery logic must be maintained for multiple hosts.
+- Documentation needs to stay synchronized across platforms.
+- Platform differences still create some packaging overhead.
+- The benefit is much broader distribution for relatively low marginal cost.
+
+## Example Scenario
+
+A user working in Codex, another in Cursor, and another in Claude Code can all use the same conceptual workflow: analyze the repository, generate the knowledge graph, and inspect it through the dashboard. The host integration changes, but the underlying architecture and artifacts stay the same.
+
+## Source Files Referenced
 
 - `README.md`
 - `docs/plans/2026-03-18-multi-platform-simple-design.md`
@@ -43,3 +113,9 @@ done
 - `.gemini/INSTALL.md`
 - `.cursor-plugin/plugin.json`
 - `.copilot-plugin/plugin.json`
+
+## 3. Findings and Conclusion
+
+The analysis of Q8 shows that multi-platform support is a direct consequence of the repo's architecture, not just a marketing expansion. Understand-Anything is built around portable skills, a shared analysis engine, and a reusable graph artifact, so its value naturally extends beyond one host ecosystem.
+
+In practical terms, this makes the project more resilient, more widely useful, and better positioned as a general-purpose code understanding platform rather than a platform-specific plugin.

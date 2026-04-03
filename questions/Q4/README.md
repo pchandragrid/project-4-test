@@ -1,18 +1,60 @@
-# Q4 README
+# Q4 — Why separate the analysis engine (`core`) from the dashboard (React frontend)?
 
-## Question
+## 1. Project Overview and Key Components
 
-Why separate the analysis engine (`core`) from the dashboard (React frontend)?
+### Repository Analysis Summary
 
-## Answer
+This question examines why Understand-Anything keeps analysis and visualization in separate packages rather than building one tightly coupled application layer. The answer depends on runtime boundaries, packaging constraints, and the repo's choice to persist a reusable graph artifact between generation and consumption.
 
-The repo separates `core` from `dashboard` because they solve different problems under different runtime constraints. The analysis engine needs filesystem access, git awareness, parser loading, persistence, fingerprints, and prompt orchestration. The dashboard needs browser-safe graph data, interaction patterns, and rendering performance.
+Within the Understand-Anything codebase, this question primarily touches the following areas:
 
-That boundary is explicit in the monorepo. `understand-anything-plugin/packages/core` owns graph construction, schema validation, search, staleness detection, and analyzers. `understand-anything-plugin/packages/dashboard` is a React application that reads the graph and presents it visually. `CLAUDE.md` even warns that the dashboard must only import browser-safe core subpaths like `./types`, `./schema`, and `./search`, because the main core entry point pulls in Node.js modules.
+- `understand-anything-plugin/packages/core/package.json`
+- `understand-anything-plugin/packages/dashboard/package.json`
+- `understand-anything-plugin/packages/core/src/persistence/index.ts`
+- `docs/plans/2026-03-14-understand-anything-design.md`
+- `CLAUDE.md`
 
-The bridge between the two is the persisted graph artifact, `.understand-anything/knowledge-graph.json`. That artifact lets the graph be generated once in a terminal or agent session and then opened repeatedly in a fast UI. It also allows the same graph to support other features like diff analysis, explain mode, and onboarding.
+## 2. Deep Reasoning Questions & Analysis
 
-This separation makes the system more portable as well. Because the core logic is not tightly coupled to one UI host, the project can support multiple agent platforms without rewriting its analysis pipeline.
+## Expanded Overview
+
+Understand-Anything has two very different jobs. One job is to inspect repositories, run parsers, use git data, persist graph artifacts, and orchestrate prompts. The other job is to load an already-built graph and give the user a fast, interactive interface for exploring it. The repo separates these jobs because they belong to different environments and have different operational needs.
+
+## Why This Matters
+
+- The analysis engine needs Node.js capabilities like filesystem access and persistence.
+- The dashboard needs browser-safe modules and interactive rendering.
+- The graph should be reusable across multiple flows, not bound to one UI session.
+- Multi-platform agent support gets easier when the heavy logic is not welded to one frontend.
+
+## Detailed Answer
+
+### Short answer
+
+Understand-Anything separates `core` from `dashboard` because analysis and visualization have different runtime requirements, different responsibilities, and different reuse patterns.
+
+### What belongs in `core`
+
+- parsing and structural extraction
+- graph assembly and schema validation
+- persistence and path sanitization
+- staleness detection and incremental logic
+- search/schema/type exports used by other consumers
+
+### What belongs in `dashboard`
+
+- graph rendering with React Flow
+- user interaction, search UI, focus modes, and navigation
+- layer visualization and visual drill-down
+- browser-side state management via Zustand
+
+### Why the JSON bridge matters
+
+The persisted `.understand-anything/knowledge-graph.json` file is the handoff between the two layers. That means the expensive reasoning can happen once in a terminal or agent session, while the dashboard can stay a fast viewer over a durable artifact.
+
+### Why this boundary is explicit in the repo
+
+`CLAUDE.md` warns that the dashboard must import only browser-safe subpath exports like `./search`, `./types`, and `./schema`, not the main core entry point, because the main entry can bring in Node-specific modules. That is strong evidence that the repo intentionally maintains a runtime boundary between analysis logic and frontend logic.
 
 ## Architecture Diagram
 
@@ -60,10 +102,42 @@ packages/dashboard
 }
 ```
 
-## Key Repo Evidence
+## Practical Design Implications
+
+- The graph can be generated once and reused many times.
+- The dashboard stays lightweight and browser-friendly.
+- Analysis can run in terminal/agent workflows without needing the UI runtime.
+- Other features such as diff analysis and explain mode can consume the same graph artifact.
+
+## Conclusion
+
+Overall, Q4 highlights a deliberate architectural choice in Understand-Anything: the repository separates graph generation from graph consumption so each side can operate in the environment it is best suited for.
+
+## Architectural Reasoning
+
+The `core` package needs local execution powers such as filesystem access, persistence, parsers, and git-aware logic, while the dashboard needs browser-safe modules and interactive rendering. A durable JSON handoff between them keeps both sides simpler and makes the whole system more portable across tools and platforms.
+
+## Trade-offs and Limitations
+
+- The project must maintain a clean interface between packages.
+- Some types and utilities need carefully controlled exports.
+- The graph file becomes a contract that must remain valid and well-defined.
+- The payoff is cleaner separation of concerns and much better portability.
+
+## Example Scenario
+
+A developer can run `/understand` in a terminal-like agent environment, generate the graph with filesystem and git access, then open the dashboard later and explore that exact graph without rerunning the analysis. That workflow is only clean because the repo separates graph generation from graph rendering.
+
+## Source Files Referenced
 
 - `understand-anything-plugin/packages/core/package.json`
 - `understand-anything-plugin/packages/dashboard/package.json`
 - `understand-anything-plugin/packages/core/src/persistence/index.ts`
 - `docs/plans/2026-03-14-understand-anything-design.md`
 - `CLAUDE.md`
+
+## 3. Findings and Conclusion
+
+The analysis of Q4 shows that the `core`/`dashboard` split is a foundational architecture choice. Understand-Anything treats repository analysis and graph visualization as separate but interoperable systems connected by a durable graph artifact.
+
+In practice, this makes the project more reusable, more portable, and easier to distribute across tools and platforms than a tightly coupled all-in-one frontend/backend design would be.
