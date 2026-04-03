@@ -18,9 +18,18 @@ This separation makes the system more portable as well. Because the core logic i
 
 ```mermaid
 flowchart LR
-    A[packages/core\nparsers + schema + persistence + git] --> B[saveGraph()]
-    B --> C[.understand-anything/knowledge-graph.json]
-    C --> D[packages/dashboard\nReact UI + search + graph explorer]
+    subgraph Core["packages/core"]
+        A["parsers, schema, persistence, git"]
+    end
+
+    B[".understand-anything/knowledge-graph.json"]
+
+    subgraph Dashboard["packages/dashboard"]
+        C["React UI, search, graph explorer"]
+    end
+
+    A -->|saveGraph()| B
+    B --> C
 ```
 
 ## Code Snippet
