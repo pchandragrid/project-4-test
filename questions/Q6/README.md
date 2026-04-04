@@ -1,5 +1,10 @@
 # Q6 — Why implement `graph-reviewer` as a separate validation agent?
 
+<!-- *   **Project Name:** Understand-Anything
+*   **Repository:** [https://github.com/Lum1104/Understand-Anything](https://github.com/Lum1104/Understand-Anything)
+*   **Project Category:** AI Developer Tools / Code Understanding Platform
+*   **Deadline:** April 3rd, 2026 -->
+
 ## 1. Project Overview and Key Components
 
 ### Repository Analysis Summary
@@ -14,22 +19,29 @@ Within the Understand-Anything codebase, this question primarily touches the fol
 
 ## 2. Deep Reasoning Questions & Analysis
 
-## Expanded Overview
+## Expanded overview
 
-The multi-agent pipeline produces a graph through several stages, and the file analyzers work in isolated batches. That creates the possibility of local correctness but global inconsistency. A separate graph reviewer exists to evaluate the assembled graph as a whole and to protect downstream consumers from malformed graph data.
+> [!NOTE]
+> The multi-agent pipeline produces a graph through several stages, and the file analyzers work in isolated batches. That creates the possibility of local correctness but global inconsistency. A separate graph reviewer exists to evaluate the assembled graph as a whole and to protect downstream consumers from malformed graph data.
 
-## Why This Matters
 
-- File-analysis batches may not have complete global context.
-- Broken references, duplicates, or missing coverage can survive local extraction.
-- The dashboard assumes the graph artifact is structurally valid.
-- Validation should be skeptical and independent from generation.
+## Why this matters
 
-## Detailed Answer
+> [!IMPORTANT]
+> **Key Context**
+> - File-analysis batches may not have complete global context.
+> - Broken references, duplicates, or missing coverage can survive local extraction.
+> - The dashboard assumes the graph artifact is structurally valid.
+> - Validation should be skeptical and independent from generation.
+
+
+## Detailed answer
 
 ### Short answer
 
-Understand-Anything implements `graph-reviewer` as a separate validation agent because generation and validation are different jobs, and the graph needs a final whole-project QA pass before it becomes the persisted artifact.
+> [!TIP]
+> Understand-Anything implements `graph-reviewer` as a separate validation agent because generation and validation are different jobs, and the graph needs a final whole-project QA pass before it becomes the persisted artifact.
+
 
 ### Why file analyzers should not be the final validators
 
@@ -76,33 +88,52 @@ node $PROJECT_ROOT/.understand-anything/tmp/ua-graph-validate.js \
   "$PROJECT_ROOT/.understand-anything/tmp/ua-review-results.json"
 ```
 
-## Practical Design Implications
+### Code citation(s)
 
-- The persisted graph is more trustworthy.
-- Downstream UI and search behavior are less likely to break on malformed data.
-- The pipeline gains a clear QA boundary before persistence.
-- Problems can be auto-fixed or surfaced explicitly instead of silently propagating.
+| File Referenced | Repository Link |
+|---|---|
+| `understand-anything-plugin/skills/understand/SKILL.md` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/understand-anything-plugin/skills/understand/SKILL.md) |
+| `understand-anything-plugin/skills/understand/graph-reviewer-prompt.md` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/understand-anything-plugin/skills/understand/graph-reviewer-prompt.md) |
+| `understand-anything-plugin/packages/core/src/schema.ts` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/understand-anything-plugin/packages/core/src/schema.ts) |
+
+
+### How the evidence was stitched together
+
+The need for a dedicated reviewer agent became apparent by inspecting the `graph-reviewer-prompt.md` and the validation utilities in `schema.ts`. Separating this quality-gate conceptually prevents the localized batch workers from silently compounding structural errors into the final graph.
+
+## Practical design implications
+
+| ✨ Design Implication | Description |
+|---|---|
+| **Impact 1** | The persisted graph is more trustworthy. |
+| **Impact 2** | Downstream UI and search behavior are less likely to break on malformed data. |
+| **Impact 3** | The pipeline gains a clear QA boundary before persistence. |
+| **Impact 4** | Problems can be auto-fixed or surfaced explicitly instead of silently propagating. |
+
 
 ## Conclusion
 
 Overall, Q6 highlights a deliberate architectural choice in Understand-Anything: validation is independent from generation so the final graph can be checked skeptically before becoming the system’s shared artifact.
 
-## Architectural Reasoning
+## Architectural reasoning
 
 The file analyzers are optimized for extraction, not for whole-graph QA. A separate reviewer phase creates a clean boundary where global invariants such as referential integrity, layer coverage, and tour consistency can be enforced after the graph is assembled. That separation increases trust in every downstream feature that consumes the graph.
 
-## Trade-offs and Limitations
+## Trade-offs and limitations
 
-- Validation adds another phase and more orchestration.
-- Full review mode costs more than basic deterministic checks.
-- Some issues still require heuristic fixes or warnings instead of perfect repair.
-- The benefit is a much safer graph artifact contract.
+> [!WARNING]
+> **Considerations**
+> - Validation adds another phase and more orchestration.
+> - Full review mode costs more than basic deterministic checks.
+> - Some issues still require heuristic fixes or warnings instead of perfect repair.
+> - The benefit is a much safer graph artifact contract.
 
-## Example Scenario
+
+## Example scenario
 
 Suppose one file-analysis batch emits an edge pointing to a node ID that another batch never produced. Without a final reviewer, that broken reference could reach the dashboard and cause incorrect navigation or rendering problems. The graph reviewer catches that issue before the graph is treated as authoritative.
 
-## Source Files Referenced
+## Source files referenced
 
 - `understand-anything-plugin/skills/understand/SKILL.md`
 - `understand-anything-plugin/skills/understand/graph-reviewer-prompt.md`

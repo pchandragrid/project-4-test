@@ -1,5 +1,10 @@
 # Q4 — Why separate the analysis engine (`core`) from the dashboard (React frontend)?
 
+<!-- *   **Project Name:** Understand-Anything
+*   **Repository:** [https://github.com/Lum1104/Understand-Anything](https://github.com/Lum1104/Understand-Anything)
+*   **Project Category:** AI Developer Tools / Code Understanding Platform
+*   **Deadline:** April 3rd, 2026 -->
+
 ## 1. Project Overview and Key Components
 
 ### Repository Analysis Summary
@@ -16,22 +21,29 @@ Within the Understand-Anything codebase, this question primarily touches the fol
 
 ## 2. Deep Reasoning Questions & Analysis
 
-## Expanded Overview
+## Expanded overview
 
-Understand-Anything has two very different jobs. One job is to inspect repositories, run parsers, use git data, persist graph artifacts, and orchestrate prompts. The other job is to load an already-built graph and give the user a fast, interactive interface for exploring it. The repo separates these jobs because they belong to different environments and have different operational needs.
+> [!NOTE]
+> Understand-Anything has two very different jobs. One job is to inspect repositories, run parsers, use git data, persist graph artifacts, and orchestrate prompts. The other job is to load an already-built graph and give the user a fast, interactive interface for exploring it. The repo separates these jobs because they belong to different environments and have different operational needs.
 
-## Why This Matters
 
-- The analysis engine needs Node.js capabilities like filesystem access and persistence.
-- The dashboard needs browser-safe modules and interactive rendering.
-- The graph should be reusable across multiple flows, not bound to one UI session.
-- Multi-platform agent support gets easier when the heavy logic is not welded to one frontend.
+## Why this matters
 
-## Detailed Answer
+> [!IMPORTANT]
+> **Key Context**
+> - The analysis engine needs Node.js capabilities like filesystem access and persistence.
+> - The dashboard needs browser-safe modules and interactive rendering.
+> - The graph should be reusable across multiple flows, not bound to one UI session.
+> - Multi-platform agent support gets easier when the heavy logic is not welded to one frontend.
+
+
+## Detailed answer
 
 ### Short answer
 
-Understand-Anything separates `core` from `dashboard` because analysis and visualization have different runtime requirements, different responsibilities, and different reuse patterns.
+> [!TIP]
+> Understand-Anything separates `core` from `dashboard` because analysis and visualization have different runtime requirements, different responsibilities, and different reuse patterns.
+
 
 ### What belongs in `core`
 
@@ -102,33 +114,54 @@ packages/dashboard
 }
 ```
 
-## Practical Design Implications
+### Code citation(s)
 
-- The graph can be generated once and reused many times.
-- The dashboard stays lightweight and browser-friendly.
-- Analysis can run in terminal/agent workflows without needing the UI runtime.
-- Other features such as diff analysis and explain mode can consume the same graph artifact.
+| File Referenced | Repository Link |
+|---|---|
+| `understand-anything-plugin/packages/core/package.json` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/understand-anything-plugin/packages/core/package.json) |
+| `understand-anything-plugin/packages/dashboard/package.json` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/understand-anything-plugin/packages/dashboard/package.json) |
+| `understand-anything-plugin/packages/core/src/persistence/index.ts` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/understand-anything-plugin/packages/core/src/persistence/index.ts) |
+| `docs/plans/2026-03-14-understand-anything-design.md` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/docs/plans/2026-03-14-understand-anything-design.md) |
+| `CLAUDE.md` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/CLAUDE.md) |
+
+
+### How the evidence was stitched together
+
+I confirmed this architectural split by comparing the `package.json` configurations of the `core` and `dashboard` workspaces. The presence of Node-specific APIs (like `persistence/index.ts`) in the core, contrasted with the browser-based React Flow implementation in the dashboard, shows a strict boundary. The `CLAUDE.md` exports guidelines further enforce this.
+
+## Practical design implications
+
+| ✨ Design Implication | Description |
+|---|---|
+| **Impact 1** | The graph can be generated once and reused many times. |
+| **Impact 2** | The dashboard stays lightweight and browser-friendly. |
+| **Impact 3** | Analysis can run in terminal/agent workflows without needing the UI runtime. |
+| **Impact 4** | Other features such as diff analysis and explain mode can consume the same graph artifact. |
+
 
 ## Conclusion
 
 Overall, Q4 highlights a deliberate architectural choice in Understand-Anything: the repository separates graph generation from graph consumption so each side can operate in the environment it is best suited for.
 
-## Architectural Reasoning
+## Architectural reasoning
 
 The `core` package needs local execution powers such as filesystem access, persistence, parsers, and git-aware logic, while the dashboard needs browser-safe modules and interactive rendering. A durable JSON handoff between them keeps both sides simpler and makes the whole system more portable across tools and platforms.
 
-## Trade-offs and Limitations
+## Trade-offs and limitations
 
-- The project must maintain a clean interface between packages.
-- Some types and utilities need carefully controlled exports.
-- The graph file becomes a contract that must remain valid and well-defined.
-- The payoff is cleaner separation of concerns and much better portability.
+> [!WARNING]
+> **Considerations**
+> - The project must maintain a clean interface between packages.
+> - Some types and utilities need carefully controlled exports.
+> - The graph file becomes a contract that must remain valid and well-defined.
+> - The payoff is cleaner separation of concerns and much better portability.
 
-## Example Scenario
+
+## Example scenario
 
 A developer can run `/understand` in a terminal-like agent environment, generate the graph with filesystem and git access, then open the dashboard later and explore that exact graph without rerunning the analysis. That workflow is only clean because the repo separates graph generation from graph rendering.
 
-## Source Files Referenced
+## Source files referenced
 
 - `understand-anything-plugin/packages/core/package.json`
 - `understand-anything-plugin/packages/dashboard/package.json`

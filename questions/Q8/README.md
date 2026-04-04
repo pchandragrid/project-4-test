@@ -1,5 +1,10 @@
 # Q8 — Why support multiple platform integrations instead of focusing exclusively on Claude Code?
 
+<!-- *   **Project Name:** Understand-Anything
+*   **Repository:** [https://github.com/Lum1104/Understand-Anything](https://github.com/Lum1104/Understand-Anything)
+*   **Project Category:** AI Developer Tools / Code Understanding Platform
+*   **Deadline:** April 3rd, 2026 -->
+
 ## 1. Project Overview and Key Components
 
 ### Repository Analysis Summary
@@ -19,22 +24,29 @@ Within the Understand-Anything codebase, this question primarily touches the fol
 
 ## 2. Deep Reasoning Questions & Analysis
 
-## Expanded Overview
+## Expanded overview
 
-The repository's core value is not tied to one host ecosystem. Understand-Anything's main assets are its skill pipeline, shared analysis engine, graph schema, and dashboard. Once those are independent from any one platform runtime, it becomes natural and relatively inexpensive to distribute the system across multiple agent environments.
+> [!NOTE]
+> The repository's core value is not tied to one host ecosystem. Understand-Anything's main assets are its skill pipeline, shared analysis engine, graph schema, and dashboard. Once those are independent from any one platform runtime, it becomes natural and relatively inexpensive to distribute the system across multiple agent environments.
 
-## Why This Matters
 
-- The user problem exists across many AI coding platforms, not just one.
-- Reusing the same skills and graph artifact increases reach without duplicating logic.
-- Platform neutrality reduces ecosystem lock-in.
-- The repo's packaging strategy already assumes shared files across platforms.
+## Why this matters
 
-## Detailed Answer
+> [!IMPORTANT]
+> **Key Context**
+> - The user problem exists across many AI coding platforms, not just one.
+> - Reusing the same skills and graph artifact increases reach without duplicating logic.
+> - Platform neutrality reduces ecosystem lock-in.
+> - The repo's packaging strategy already assumes shared files across platforms.
+
+
+## Detailed answer
 
 ### Short answer
 
-Understand-Anything supports multiple platforms because its architecture is already portable, and the underlying problem it solves, codebase understanding, is universal across modern AI coding environments.
+> [!TIP]
+> Understand-Anything supports multiple platforms because its architecture is already portable, and the underlying problem it solves, codebase understanding, is universal across modern AI coding environments.
+
 
 ### What makes the repo portable
 
@@ -77,33 +89,57 @@ for skill in understand understand-chat understand-dashboard understand-diff und
 done
 ```
 
-## Practical Design Implications
+### Code citation(s)
 
-- One architecture can serve many ecosystems.
-- The project gains a wider user base without a full rewrite per platform.
-- Skills and prompts stay easier to maintain because they are shared.
-- The graph artifact remains the consistent cross-platform contract.
+| File Referenced | Repository Link |
+|---|---|
+| `README.md` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/README.md) |
+| `docs/plans/2026-03-18-multi-platform-simple-design.md` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/docs/plans/2026-03-18-multi-platform-simple-design.md) |
+| `.codex/INSTALL.md` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/.codex/INSTALL.md) |
+| `.opencode/INSTALL.md` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/.opencode/INSTALL.md) |
+| `.openclaw/INSTALL.md` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/.openclaw/INSTALL.md) |
+| `.gemini/INSTALL.md` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/.gemini/INSTALL.md) |
+| `.cursor-plugin/plugin.json` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/.cursor-plugin/plugin.json) |
+| `.copilot-plugin/plugin.json` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/.copilot-plugin/plugin.json) |
+
+
+### How the evidence was stitched together
+
+I analyzed the proliferation of `.codex`, `.opencode`, `.cursor-plugin`, and `.copilot-plugin` directories alongside the `2026-03-18-multi-platform-simple-design.md` planning document. It became clear that the core skills and graph output were kept deliberately generic to allow varying host environments to wrap and execute the identical core binary.
+
+## Practical design implications
+
+| ✨ Design Implication | Description |
+|---|---|
+| **Impact 1** | One architecture can serve many ecosystems. |
+| **Impact 2** | The project gains a wider user base without a full rewrite per platform. |
+| **Impact 3** | Skills and prompts stay easier to maintain because they are shared. |
+| **Impact 4** | The graph artifact remains the consistent cross-platform contract. |
+
 
 ## Conclusion
 
 Overall, Q8 highlights a deliberate architectural choice in Understand-Anything: the project is built as a portable code-understanding system rather than as a plugin locked to one host ecosystem.
 
-## Architectural Reasoning
+## Architectural reasoning
 
 Once the analysis engine, graph artifact, and skills are made platform-neutral, supporting additional hosts becomes mainly a packaging and discovery problem. The repo’s installation files and plugin manifests show that this portability is intentional. Multi-platform support is therefore not extra decoration; it follows naturally from the architecture.
 
-## Trade-offs and Limitations
+## Trade-offs and limitations
 
-- Installation and discovery logic must be maintained for multiple hosts.
-- Documentation needs to stay synchronized across platforms.
-- Platform differences still create some packaging overhead.
-- The benefit is much broader distribution for relatively low marginal cost.
+> [!WARNING]
+> **Considerations**
+> - Installation and discovery logic must be maintained for multiple hosts.
+> - Documentation needs to stay synchronized across platforms.
+> - Platform differences still create some packaging overhead.
+> - The benefit is much broader distribution for relatively low marginal cost.
 
-## Example Scenario
+
+## Example scenario
 
 A user working in Codex, another in Cursor, and another in Claude Code can all use the same conceptual workflow: analyze the repository, generate the knowledge graph, and inspect it through the dashboard. The host integration changes, but the underlying architecture and artifacts stay the same.
 
-## Source Files Referenced
+## Source files referenced
 
 - `README.md`
 - `docs/plans/2026-03-18-multi-platform-simple-design.md`

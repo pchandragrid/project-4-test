@@ -1,5 +1,10 @@
 # Q3 — Why encode layer information as visual attributes (color) rather than explicit graph nodes?
 
+<!-- *   **Project Name:** Understand-Anything
+*   **Repository:** [https://github.com/Lum1104/Understand-Anything](https://github.com/Lum1104/Understand-Anything)
+*   **Project Category:** AI Developer Tools / Code Understanding Platform
+*   **Deadline:** April 3rd, 2026 -->
+
 ## 1. Project Overview and Key Components
 
 ### Repository Analysis Summary
@@ -15,22 +20,29 @@ Within the Understand-Anything codebase, this question primarily touches the fol
 
 ## 2. Deep Reasoning Questions & Analysis
 
-## Expanded Overview
+## Expanded overview
 
-Architectural layers in Understand-Anything are not treated as ordinary code entities. A layer is a grouping of existing node IDs, not a new type of semantic object that participates in code dependencies. That distinction is important because layers describe one way of looking at the graph, not an additional class of domain object that the graph itself must model as a dependency endpoint.
+> [!NOTE]
+> Architectural layers in Understand-Anything are not treated as ordinary code entities. A layer is a grouping of existing node IDs, not a new type of semantic object that participates in code dependencies. That distinction is important because layers describe one way of looking at the graph, not an additional class of domain object that the graph itself must model as a dependency endpoint.
 
-## Why This Matters
 
-- The graph should represent real code relationships, not synthetic presentation edges.
-- Layer grouping should improve readability without distorting topology.
-- Search, aggregation, and tour logic should remain grounded in actual repository structure.
-- The dashboard needs a strong architecture lens without polluting persisted semantics.
+## Why this matters
 
-## Detailed Answer
+> [!IMPORTANT]
+> **Key Context**
+> - The graph should represent real code relationships, not synthetic presentation edges.
+> - Layer grouping should improve readability without distorting topology.
+> - Search, aggregation, and tour logic should remain grounded in actual repository structure.
+> - The dashboard needs a strong architecture lens without polluting persisted semantics.
+
+
+## Detailed answer
 
 ### Short answer
 
-Understand-Anything encodes layers as metadata plus color/grouping in the dashboard because layers are architectural classifications, not real dependency nodes.
+> [!TIP]
+> Understand-Anything encodes layers as metadata plus color/grouping in the dashboard because layers are architectural classifications, not real dependency nodes.
+
 
 ### What would go wrong with explicit layer nodes?
 
@@ -73,33 +85,53 @@ export const LAYER_PALETTE = [
 ];
 ```
 
-## Practical Design Implications
+### Code citation(s)
 
-- The persisted graph stays semantically cleaner.
-- The dashboard can provide architecture grouping without corrupting dependency meaning.
-- Cross-layer summaries are derived from actual edges, not invented ones.
-- The same graph artifact remains reusable for search, tours, and explain flows.
+| File Referenced | Repository Link |
+|---|---|
+| `docs/plans/2026-03-14-understand-anything-design.md` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/docs/plans/2026-03-14-understand-anything-design.md) |
+| `understand-anything-plugin/packages/dashboard/src/components/LayerLegend.tsx` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/understand-anything-plugin/packages/dashboard/src/components/LayerLegend.tsx) |
+| `understand-anything-plugin/packages/dashboard/src/components/GraphView.tsx` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/understand-anything-plugin/packages/dashboard/src/components/GraphView.tsx) |
+| `understand-anything-plugin/packages/dashboard/src/utils/edgeAggregation.ts` | [View File](https://github.com/Lum1104/Understand-Anything/blob/main/understand-anything-plugin/packages/dashboard/src/utils/edgeAggregation.ts) |
+
+
+### How the evidence was stitched together
+
+This conclusion was arrived at by tracing how layers are represented in the graph generation versus how they are rendered. `edgeAggregation.ts` and `GraphView.tsx` both demonstrate that layers are computed from node metadata and rendered purely as visual groupings (clusters / colors) via `LayerLegend.tsx`, rather than persisting as distinct traversable nodes in the `knowledge-graph.json`.
+
+## Practical design implications
+
+| ✨ Design Implication | Description |
+|---|---|
+| **Impact 1** | The persisted graph stays semantically cleaner. |
+| **Impact 2** | The dashboard can provide architecture grouping without corrupting dependency meaning. |
+| **Impact 3** | Cross-layer summaries are derived from actual edges, not invented ones. |
+| **Impact 4** | The same graph artifact remains reusable for search, tours, and explain flows. |
+
 
 ## Conclusion
 
 Overall, Q3 highlights a deliberate architectural choice in Understand-Anything: architectural layers are treated as an interpretive lens over the graph rather than as synthetic dependency objects inside the graph itself.
 
-## Architectural Reasoning
+## Architectural reasoning
 
 The repository separates semantic truth from visual organization. Real nodes and edges describe the codebase, while layers help users understand that structure at a higher level. This avoids contaminating dependency topology with presentation-only artifacts and keeps the graph more faithful to the underlying code.
 
-## Trade-offs and Limitations
+## Trade-offs and limitations
 
-- Layer information is less explicit in the raw node/edge topology itself.
-- The dashboard has to derive presentation nodes at render time.
-- Some architectural grouping logic lives in the UI instead of the graph core.
-- The reward is a much more truthful underlying graph model.
+> [!WARNING]
+> **Considerations**
+> - Layer information is less explicit in the raw node/edge topology itself.
+> - The dashboard has to derive presentation nodes at render time.
+> - Some architectural grouping logic lives in the UI instead of the graph core.
+> - The reward is a much more truthful underlying graph model.
 
-## Example Scenario
+
+## Example scenario
 
 Imagine 120 files across API, service, data, and UI layers. If each file were linked to an explicit layer node, those layer nodes would dominate the graph and visually overshadow true imports and dependencies. By keeping layers as metadata, the dashboard can still show architecture grouping while preserving the real dependency network.
 
-## Source Files Referenced
+## Source files referenced
 
 - `docs/plans/2026-03-14-understand-anything-design.md`
 - `understand-anything-plugin/packages/dashboard/src/components/LayerLegend.tsx`
